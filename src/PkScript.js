@@ -5,6 +5,7 @@
 const bitcoinLib = require('bitcoinjs-lib');
 const Expression = require('./Expression');
 const ScriptExpression = require('./ScriptExpression');
+const Options = require('./Options');
 const Util = require('./Util');
 
 class PkScript extends ScriptExpression {
@@ -22,7 +23,26 @@ class PkScript extends ScriptExpression {
     }
 
     get _payments() {
-        return this.keyParam.publicKeys.map(pubKey => {
+        let filterList = false;
+        let lastPubKey;
+
+        const payments = this.keyParam.publicKeys.map(pubKey => {
+            if (Options.ignoreNonexistentPathIndex) {
+                if (lastPubKey && Util.pubKeyEquals(pubKey, lastPubKey)) {
+                    filterList = true;
+                    return null;
+                }
+                else {
+                    lastPubKey = pubKey;
+                }
+            }
+            else {
+                if (pubKey === undefined) {
+                    filterList = true;
+                    return null;
+                }
+            }
+
             try {
                 return bitcoinLib.payments.p2pk({
                     pubkey: pubKey,
@@ -33,6 +53,8 @@ class PkScript extends ScriptExpression {
                 throw new Error(`Bitcoin output descriptor [PkScript#_payments]: error deriving P2PK payment from public key (${Util.inspect(pubKey)}): ${err}`);
             }
         });
+
+        return filterList ? payments.filter(payment => payment !== null) : payments;
     }
 
     constructor(network, text, value, children, checksum) {

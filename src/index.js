@@ -8,8 +8,11 @@ const ScriptExpression = require('./ScriptExpression');
 const KeyExpression = require('./KeyExpression');
 const AddrExpression = require('./AddrExpression');
 const {descriptorChecksum} = require('./Checksum');
+const Options = require('./Options');
 
-function parse(text, network) {
+function parse(text, network, options) {
+    Options.setOptions(options);
+
     if (typeof network !== 'string') {
         network = '';
     }

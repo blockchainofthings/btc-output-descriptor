@@ -5,6 +5,7 @@
 const bitcoinLib = require('bitcoinjs-lib');
 const Expression = require('./Expression');
 const ScriptExpression = require('./ScriptExpression');
+const Options = require('./Options');
 const Util = require('./Util');
 
 class MultiScript extends ScriptExpression {
@@ -26,7 +27,26 @@ class MultiScript extends ScriptExpression {
     }
 
     get _payments() {
-        return this._publicKeySets.map(pubKeys => {
+        let filterList = false;
+        let lastPubKeys;
+
+        const payments = this._publicKeySets.map(pubKeys => {
+            if (Options.ignoreNonexistentPathIndex) {
+                if (lastPubKeys && Util.pubKeySetEquals(pubKeys, lastPubKeys)) {
+                    filterList = true;
+                    return null;
+                }
+                else {
+                    lastPubKeys = pubKeys;
+                }
+            }
+            else {
+                if (pubKeys === undefined) {
+                    filterList = true;
+                    return null;
+                }
+            }
+
             try {
                 return bitcoinLib.payments.p2ms({
                     m: this.nSigParam.value,
@@ -38,6 +58,8 @@ class MultiScript extends ScriptExpression {
                 throw new Error(`Bitcoin output descriptor [MultiScript#_payments]: error deriving P2MS payment from public keys (${Util.inspect(pubKeys)}): ${err}`);
             }
         });
+
+        return filterList ? payments.filter(payment => payment !== null) : payments;
     }
 
     get _publicKeySets() {
@@ -70,6 +92,8 @@ class MultiScript extends ScriptExpression {
         for (let rangeIdx = keyRange ? keyRange.startIdx : 0, lastIdx = keyRange ? rangeIdx + keyRange.count - 1 : 0;
              rangeIdx <= lastIdx; rangeIdx++
         ) {
+            let isKeySetValid = true;
+
             const keySet = this.keyParams.reduce((set, key) => {
                 if (key.fromRange) {
                     let pubKeys;
@@ -82,7 +106,16 @@ class MultiScript extends ScriptExpression {
                         pubKeysByKey.set(key, pubKeys);
                     }
 
-                    set.push(pubKeys[rangeIdx]);
+                    const pubKey = pubKeys[rangeIdx];
+
+                    if (!pubKey) {
+                        // Public key not defined for that key range/path index.
+                        //  Invalidate the whole set
+                        isKeySetValid = false;
+                    }
+                    else {
+                        set.push(pubKey);
+                    }
                 }
                 else {
                     set.push(key.publicKeys[0]);
@@ -91,7 +124,7 @@ class MultiScript extends ScriptExpression {
                 return set;
             }, []);
 
-            keySets.push(keySet);
+            keySets.push(isKeySetValid? keySet : undefined);
         }
 
         return keySets;

@@ -27,5 +27,25 @@ module.exports = {
         return module.exports.isValidKeyRange(obj1) && module.exports.isValidKeyRange(obj2)
             && obj1.startIdx === obj2.startIdx && obj1.count === obj2.count;
     },
-    inspect: util.inspect
+    inspect: util.inspect,
+    /**
+     * Check if two public keys are equal.
+     * @param {Buffer} pk1
+     * @param {Buffer} pk2
+     * @return {boolean}
+     */
+    pubKeyEquals(pk1, pk2) {
+        return pk1.equals(pk2);
+    },
+    /**
+     * Check if two public key sets are equal.
+     * @param {Buffer[]} s1
+     * @param {Buffer[]} s2
+     */
+    pubKeySetEquals(s1, s2) {
+        let setLength;
+
+        return (setLength = s1.length) === s2.length
+            && s1.every((pk1, idx) => pk1.equals(s2[idx]));
+    }
 };

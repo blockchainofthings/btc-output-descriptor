@@ -5,6 +5,7 @@
 const bitcoinLib = require('bitcoinjs-lib');
 const Expression = require('./Expression');
 const ScriptExpression = require('./ScriptExpression');
+const Options = require('./Options');
 const Util = require('./Util');
 
 class WpkhScript extends ScriptExpression {
@@ -21,7 +22,26 @@ class WpkhScript extends ScriptExpression {
     }
 
     get _payments() {
-        return this.keyParam.publicKeys.map(pubKey => {
+        let filterList = false;
+        let lastPubKey;
+
+        const payments = this.keyParam.publicKeys.map(pubKey => {
+            if (Options.ignoreNonexistentPathIndex) {
+                if (lastPubKey && Util.pubKeyEquals(pubKey, lastPubKey)) {
+                    filterList = true;
+                    return null;
+                }
+                else {
+                    lastPubKey = pubKey;
+                }
+            }
+            else {
+                if (pubKey === undefined) {
+                    filterList = true;
+                    return null;
+                }
+            }
+
             try {
                 return bitcoinLib.payments.p2wpkh({
                     pubkey: pubKey,
@@ -32,6 +52,8 @@ class WpkhScript extends ScriptExpression {
                 throw new Error(`Bitcoin output descriptor [WpkhScript#_payments]: error deriving P2WPKH payment from public key (${Util.inspect(pubKey)}): ${err}`);
             }
         });
+
+        return filterList ? payments.filter(payment => payment !== null) : payments;
     }
 
     constructor(network, text, value, children, checksum) {

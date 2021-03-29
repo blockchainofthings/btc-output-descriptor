@@ -4,6 +4,7 @@
 
 const bitcoinLib = require('bitcoinjs-lib');
 const Expression = require('./Expression');
+const Options = require('./Options');
 const Util = require('./Util');
 
 const TYPE = Object.freeze({
@@ -101,8 +102,12 @@ class KeyExpression extends Expression {
                             throw new Error(`Bitcoin output descriptor [KeyExpression#parse]: error deriving extended key: ${err}`);
                         }
 
-                        if (extKeyPair.index !== index) {
-                            throw new Error(`Bitcoin output descriptor [KeyExpression#parse]: error deriving extended key: nonexistent index (${index})`);
+                        if (!Options.ignoreNonexistentPathIndex
+                            && extKeyPair.index !== KeyExpression.realPathIndex(index, isHardened)
+                        ) {
+                            throw new Error(
+                                `Bitcoin output descriptor [KeyExpression#parse]: error deriving extended key: nonexistent index (${pathIndexToString(index, isHardened)})`
+                            );
                         }
                     }
                 });
@@ -111,7 +116,7 @@ class KeyExpression extends Expression {
             return new ExtPairKey(network, text, extKeyPair, origin, pathWildcard);
         }
         else{
-            // Elliptic curse pair
+            // Elliptic curve pair
             let ecPair;
 
             if (matchResult.groups.key.match(/^0[234]/)) {
@@ -148,6 +153,10 @@ class KeyExpression extends Expression {
             return new (require('./EcPairKey'))(network, text, ecPair, origin);
         }
     }
+
+    static realPathIndex(idx, isHardened = false) {
+        return isHardened ? idx + 0x80000000 : idx;
+    }
 }
 
 function isValidType(type) {
@@ -158,6 +167,10 @@ function isValidOrigin(obj) {
     return typeof obj === 'object' && obj !== null && obj.hasOwnProperty('fingerprint')
         && typeof obj.fingerprint === 'string'
         && (!obj.hasOwnProperty('path') || typeof obj.path === 'string');
+}
+
+function pathIndexToString(idx, isHardened = false) {
+    return isHardened ? `${idx}\'` : `${idx}`;
 }
 
 module.exports = KeyExpression;

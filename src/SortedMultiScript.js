@@ -7,7 +7,7 @@ const ScriptExpression = require('./ScriptExpression');
 
 class SortedMultiScript extends MultiScript {
     get _publicKeySets() {
-        return this._getPublicKeySets().map(keySet => sortKeys(keySet));
+        return this._getPublicKeySets().map(keySet => keySet !== undefined ? sortKeys(keySet) : keySet);
     }
 
     constructor(network, text, value, children, checksum) {
