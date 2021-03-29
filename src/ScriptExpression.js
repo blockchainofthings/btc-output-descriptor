@@ -151,7 +151,7 @@ class ScriptExpression extends Expression {
                 childExpression = lastArgType.parse(network, arg, scriptType);
             }
             catch (err) {
-                throw new Error(`Bitcoin output descriptor [StringExpression#parse]: error parsing argument #${idx + 1} (${arg}): ${err}`);
+                throw new Error(`Bitcoin output descriptor [ScriptExpression#parse]: error parsing argument #${idx + 1} (${arg}): ${err}`);
             }
 
             list.push(childExpression);
