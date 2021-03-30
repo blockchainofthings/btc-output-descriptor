@@ -12,7 +12,7 @@ class HexExpression extends Expression {
 
     static parse(network, text) {
         if (!Util.isHexText(text)) {
-            throw new Error(`Bitcoin output descriptor [HexExpression#parse]: invalid hex string (${text})`)
+            throw new TypeError(`Bitcoin output descriptor [HexExpression#parse]: invalid hex string (${text})`)
         }
 
         return new HexExpression(network, text, Buffer.from(text, 'hex'));

@@ -47,7 +47,7 @@ class WshScript extends ScriptExpression {
         if (!this.hasChildren || this.children.length > 1 || this.children[0].type !== Expression.Type.script
             || !isValidInnerScriptType(this.children[0].scriptType)
         ) {
-            throw new Error(`Bitcoin output descriptor [WshScript]: inconsistent child expressions; wrong number and/or type (${Util.inspect(children)})`);
+            throw new TypeError(`Bitcoin output descriptor [WshScript]: inconsistent child expressions; wrong number and/or type (${Util.inspect(children)})`);
         }
     }
 }

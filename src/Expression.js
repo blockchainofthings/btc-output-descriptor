@@ -23,15 +23,15 @@ class Expression {
 
     constructor(network, type, text, value, children) {
         if (!Util.isValidBtcNetwork(network)) {
-            throw new Error(`Bitcoin output descriptor [Expression]: invalid \'network\' argument (${Util.inspect(network)})`);
+            throw new TypeError(`Bitcoin output descriptor [Expression]: invalid \'network\' argument (${Util.inspect(network)})`);
         }
 
         if (!isValidType(type)) {
-            throw new Error(`Bitcoin output descriptor [Expression]: invalid \'type\' argument (${type})`);
+            throw new TypeError(`Bitcoin output descriptor [Expression]: invalid \'type\' argument (${type})`);
         }
 
         if (!Util.isNullArg(children) && !isExpressionList(children)) {
-            throw new Error(`Bitcoin output descriptor [Expression]: invalid \'children\' argument (${Util.inspect(children)})`);
+            throw new TypeError(`Bitcoin output descriptor [Expression]: invalid \'children\' argument (${Util.inspect(children)})`);
         }
 
         this.network = network;

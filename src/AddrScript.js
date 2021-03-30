@@ -27,7 +27,7 @@ class AddrScript extends ScriptExpression {
         super(network, ScriptExpression.Type.addr, text, value, children, checksum);
 
         if (!this.hasChildren || this.children.length > 1 || this.children[0].type !== Expression.Type.addr) {
-            throw new Error(`Bitcoin output descriptor [AddrScript]: inconsistent child expressions; wrong number and/or type (${Util.inspect(children)})`);
+            throw new TypeError(`Bitcoin output descriptor [AddrScript]: inconsistent child expressions; wrong number and/or type (${Util.inspect(children)})`);
         }
     }
 }

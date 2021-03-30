@@ -23,7 +23,7 @@ class ExtPairKey extends KeyExpression {
     set keyRange(val) {
         if (this.fromRange) {
             if (!Util.isValidKeyRange(val)) {
-                throw new Error(`Bitcoin output descriptor [ExtPairKey#set(keyRange)]: invalid key range (${Util.inspect(val)})`);
+                throw new TypeError(`Bitcoin output descriptor [ExtPairKey#set(keyRange)]: invalid key range (${Util.inspect(val)})`);
             }
 
             this._keyRange = val;
@@ -38,7 +38,7 @@ class ExtPairKey extends KeyExpression {
         super(network, KeyExpression.Type.extPair, text, value, origin);
 
         if (!isValidWildcardType(pathWildcard)) {
-            throw new Error(`Bitcoin output descriptor [ExtPairKey]: invalid \'pathWildcard\' argument (${pathWildcard})`);
+            throw new TypeError(`Bitcoin output descriptor [ExtPairKey]: invalid \'pathWildcard\' argument (${pathWildcard})`);
         }
 
         this.pathWildcard = pathWildcard;

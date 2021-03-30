@@ -29,11 +29,11 @@ class KeyExpression extends Expression {
         super(network, Expression.Type.key, text, value);
 
         if (!isValidType(keyType)) {
-            throw new Error(`Bitcoin output descriptor [KeyExpression]: invalid \'keyType\' argument (${keyType})`);
+            throw new TypeError(`Bitcoin output descriptor [KeyExpression]: invalid \'keyType\' argument (${keyType})`);
         }
 
         if (!Util.isNullArg(origin) && !isValidOrigin(origin)) {
-            throw new Error(`Bitcoin output descriptor [KeyExpression]: invalid \'origin\' argument (${origin})`);
+            throw new TypeError(`Bitcoin output descriptor [KeyExpression]: invalid \'origin\' argument (${origin})`);
         }
 
         this.keyType = keyType;

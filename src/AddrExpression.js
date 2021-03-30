@@ -21,7 +21,7 @@ class AddrExpression extends Expression {
         super(network, Expression.Type.addr, text, value);
 
         if (!isValidType(addrType)) {
-            throw new Error(`Bitcoin output descriptor [AddrExpression]: invalid \'addrType\' argument (${addrType})`);
+            throw new TypeError(`Bitcoin output descriptor [AddrExpression]: invalid \'addrType\' argument (${addrType})`);
         }
 
         this.addrType = addrType;

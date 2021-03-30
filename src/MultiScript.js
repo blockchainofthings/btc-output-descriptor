@@ -79,7 +79,7 @@ class MultiScript extends ScriptExpression {
         if (!this.hasChildren || this.children.length < 2 || this.children[0].type !== Expression.Type.number
             || this.children.slice(1).some(child => child.type !== Expression.Type.key)
         ) {
-            throw new Error(`Bitcoin output descriptor [MultiScript]: inconsistent child expressions; wrong number and/or type (${Util.inspect(children)})`);
+            throw new TypeError(`Bitcoin output descriptor [MultiScript]: inconsistent child expressions; wrong number and/or type (${Util.inspect(children)})`);
         }
     }
 

@@ -107,7 +107,7 @@ class RawScript extends ScriptExpression {
         super(network, ScriptExpression.Type.raw, text, value, children, checksum);
 
         if (!this.hasChildren || this.children.length > 1 || this.children[0].type !== Expression.Type.hex) {
-            throw new Error(`Bitcoin output descriptor [RawScript]: inconsistent child expressions; wrong number and/or type (${Util.inspect(children)})`);
+            throw new TypeError(`Bitcoin output descriptor [RawScript]: inconsistent child expressions; wrong number and/or type (${Util.inspect(children)})`);
         }
     }
 }

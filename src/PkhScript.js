@@ -60,7 +60,7 @@ class PkhScript extends ScriptExpression {
         super(network, ScriptExpression.Type.pkh, text, value, children, checksum);
 
         if (!this.hasChildren || this.children.length > 1 || this.children[0].type !== Expression.Type.key) {
-            throw new Error(`Bitcoin output descriptor [PkhScript]: inconsistent child expressions; wrong number and/or type (${Util.inspect(children)})`);
+            throw new TypeError(`Bitcoin output descriptor [PkhScript]: inconsistent child expressions; wrong number and/or type (${Util.inspect(children)})`);
         }
     }
 }

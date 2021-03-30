@@ -61,7 +61,7 @@ class PkScript extends ScriptExpression {
         super(network, ScriptExpression.Type.pk, text, value, children, checksum);
 
         if (!this.hasChildren || this.children.length > 1 || this.children[0].type !== Expression.Type.key) {
-            throw new Error(`Bitcoin output descriptor [PkScript]: inconsistent child expressions; wrong number and/or type (${Util.inspect(children)})`);
+            throw new TypeError(`Bitcoin output descriptor [PkScript]: inconsistent child expressions; wrong number and/or type (${Util.inspect(children)})`);
         }
     }
 }

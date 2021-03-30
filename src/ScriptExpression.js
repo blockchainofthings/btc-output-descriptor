@@ -90,11 +90,11 @@ class ScriptExpression extends Expression {
         super(network, Expression.Type.script, text, value, children);
 
         if (!isValidType(scriptType)) {
-            throw new Error(`Bitcoin output descriptor [ScriptExpression]: invalid \'scriptType\' argument (${scriptType})`);
+            throw new TypeError(`Bitcoin output descriptor [ScriptExpression]: invalid \'scriptType\' argument (${scriptType})`);
         }
 
         if (checksum !== undefined && !isValidChecksum(checksum)) {
-            throw new Error(`Bitcoin output descriptor [ScriptExpression]: invalid \'checksum\' argument (${checksum})`);
+            throw new TypeError(`Bitcoin output descriptor [ScriptExpression]: invalid \'checksum\' argument (${checksum})`);
         }
 
         this.scriptType = scriptType;
@@ -103,7 +103,7 @@ class ScriptExpression extends Expression {
 
     static parse(network, text, parentScriptType) {
         if (!Util.isNullArg(parentScriptType) && !isValidType(parentScriptType)) {
-            throw new Error(`Bitcoin output descriptor [ScriptExpression#parse]: invalid \'parentScriptType\' argument (${parentScriptType})`);
+            throw new TypeError(`Bitcoin output descriptor [ScriptExpression#parse]: invalid \'parentScriptType\' argument (${parentScriptType})`);
         }
 
         const regExp = scriptRegExp(parentScriptType);
