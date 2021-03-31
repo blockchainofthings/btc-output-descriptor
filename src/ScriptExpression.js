@@ -133,7 +133,7 @@ class ScriptExpression extends Expression {
 
         const argTypes = SCRIPT_INFO[scriptType].argTypes;
 
-        if (args.length < argTypes) {
+        if (args.length < argTypes.length) {
             throw new Error(`Bitcoin output descriptor [ScriptExpression#parse]: missing arguments; expected: ${argTypes.length}, got: ${args.length}`);
         }
 
