@@ -10,9 +10,7 @@ const AddrExpression = require('./AddrExpression');
 const {descriptorChecksum} = require('./Checksum');
 const Options = require('./Options');
 
-function parse(text, network, options) {
-    Options.setOptions(options);
-
+function parse(text, network) {
     if (typeof network !== 'string') {
         network = '';
     }
@@ -43,5 +41,6 @@ module.exports = {
     ExpressionType: Expression.Type,
     ScriptType: ScriptExpression.Type,
     KeyType: KeyExpression.Type,
-    AddrType: AddrExpression.Type
+    AddrType: AddrExpression.Type,
+    globalOptions: Options
 };
