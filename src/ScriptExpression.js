@@ -302,28 +302,27 @@ function isValidType(type) {
     return Object.values(TYPE).some(name => name === type);
 }
 
-function scriptRegExp(parentScript) {
+function scriptRegExp(parentScriptType) {
     const tokenList = Object.values(TYPE).reduce((list, type) => {
         const scriptInfo = SCRIPT_INFO[type];
 
-        if (canBeChildScript(scriptInfo, parentScript)) {
+        if (!parentScriptType || canBeChildScript(scriptInfo, parentScriptType)) {
             list.push(scriptInfo.token);
         }
 
         return list;
     }, []);
 
-    const regExpFormat = !parentScript
+    const regExpFormat = !parentScriptType
         ? ROOT_REG_EXP_FORMAT.replace('![reg_exp_format]', REG_EXP_FORMAT.slice(1, -1))
         : REG_EXP_FORMAT;
 
     return new RegExp(regExpFormat.replace('![token_list]', tokenList.join('|')));
 }
 
-function canBeChildScript(scriptInfo, parentScript) {
-    return !parentScript || scriptInfo.parentExclude.length === 0
-        || scriptInfo.parentExclude[0] !== ANY_TYPE
-        || scriptInfo.parentExclude.every(type => type !== parentScript.scriptType);
+function canBeChildScript(scriptInfo, parentScriptType) {
+    return scriptInfo.parentExclude.length === 0 || (scriptInfo.parentExclude[0] !== ANY_TYPE
+        && scriptInfo.parentExclude.every(type => type !== parentScriptType));
 }
 
 function isScriptArg(arg) {
