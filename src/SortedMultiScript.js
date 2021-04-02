@@ -3,7 +3,6 @@
  */
 
 const MultiScript = require('./MultiScript');
-const ScriptExpression = require('./ScriptExpression');
 
 class SortedMultiScript extends MultiScript {
     get _publicKeySets() {
