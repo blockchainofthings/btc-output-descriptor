@@ -1,0 +1,201 @@
+/**
+ * Created by claudio on 2021-04-01
+ */
+
+const bitcoinLib = require('bitcoinjs-lib');
+const expect = require('chai').expect;
+const Expression = require('../src/Expression');
+const KeyExpression = require('../src/KeyExpression');
+const ScriptExpression = require('../src/ScriptExpression');
+const PkhScript = require('../src/PkhScript');
+const Options = require('../src/Options');
+
+describe('Bitcoin output descriptor [PkhScript]', function () {
+    it('should fail to create new instance (inconsistent child expressions)', function () {
+        const testData = [
+            // No child expressions
+            {
+                children: undefined
+            },
+            // Too many child expressions
+            {
+                children: [
+                    new Expression(
+                        bitcoinLib.networks.testnet,
+                        Expression.Type.key
+                    ),
+                    new Expression(
+                        bitcoinLib.networks.testnet,
+                        Expression.Type.key
+                    )
+                ]
+            },
+            // Child expression of the wrong type
+            {
+                children: [
+                    new Expression(
+                        bitcoinLib.networks.testnet,
+                        Expression.Type.hex
+                    )
+                ]
+            }
+        ];
+
+        testData.forEach(data => {
+            expect(() => {
+                new PkhScript(
+                    bitcoinLib.networks.testnet,
+                    'pkh(02eb23fcd29fbc0ef1badafc973f9011d4c8f447fd9a5997a965cc01ffca267fb6)',
+                    null,
+                    data.children
+                );
+            }).to.throw(TypeError, /^Bitcoin output descriptor \[PkhScript]: inconsistent child expressions; wrong number and\/or type/);
+        });
+    });
+
+    it('parsed instance should have expected behavior', function () {
+        // Simulate non-existent derivation path index
+        let prototype;
+        let origMethod;
+        const origFunc = bitcoinLib.bip32.fromBase58;
+        const nonExistPath = {
+            parentIndex: 1,
+            index: 2
+        }
+
+        bitcoinLib.bip32.fromBase58 = function () {
+            const res = origFunc.apply(this, Array.from(arguments));
+
+            if (!prototype) {
+                prototype = Object.getPrototypeOf(res);
+                origMethod = prototype.derive;
+
+                prototype.derive = function () {
+                    let deriveRes = origMethod.apply(this, Array.from(arguments));
+
+                    if ((this.index & ~0x80000000) === nonExistPath.parentIndex && (deriveRes.index & ~0x80000000) === nonExistPath.index) {
+                        // Index should be considered non-existent. Derive again using next index
+                        deriveRes = this.derive(deriveRes.index + 1);
+                    }
+
+                    return deriveRes;
+                }
+            }
+
+            return res;
+        };
+
+        const testData = [
+            // Single public key
+            {
+                script: 'pkh(02eb23fcd29fbc0ef1badafc973f9011d4c8f447fd9a5997a965cc01ffca267fb6)',
+                keyParamText: '02eb23fcd29fbc0ef1badafc973f9011d4c8f447fd9a5997a965cc01ffca267fb6',
+                keyRange: undefined,
+                globalOptions: undefined,
+                outputScripts: [
+                    Buffer.from('76a9145dc930210dd88ac6372f0e71318d565eefe72bf288ac', 'hex')
+                ],
+                addresses: [
+                    'mp4r9gW2LDGdh3xa3gYjJY9MG7ZDo4eKv8'
+                ]
+            },
+            // Extended public key range, ignore non-existent derivation key path
+            {
+                script: 'pkh(tpubDBHn4aVWbRA6SbSVoUZsyTowBtecUUWShQzoP7jibnjkSTa4VC2K2VZUz2CeJx4yhSMKy8ScBMe1LRSU6FsnP49ojGyHewYAD1Vf3iXm4Tm/1/*)',
+                keyParamText: 'tpubDBHn4aVWbRA6SbSVoUZsyTowBtecUUWShQzoP7jibnjkSTa4VC2K2VZUz2CeJx4yhSMKy8ScBMe1LRSU6FsnP49ojGyHewYAD1Vf3iXm4Tm/1/*',
+                keyRange: {
+                    startIdx: 0,
+                    count: 4
+                },
+                globalOptions: {
+                    ignoreNonexistentPathIndex: true
+                },
+                outputScripts: [
+                    Buffer.from('76a9145dc930210dd88ac6372f0e71318d565eefe72bf288ac', 'hex'),
+                    Buffer.from('76a914a42a092852883618fe975c0ea2cb1f83ea16ec1c88ac', 'hex'),
+                    Buffer.from('76a914ec048633355f373856392aa94ed08f3ac07c00de88ac', 'hex')
+                ],
+                addresses: [
+                    'mp4r9gW2LDGdh3xa3gYjJY9MG7ZDo4eKv8',
+                    'mvUyUDBSrW5ioaoBbTRKUL7UuD9h1MMUxb',
+                    'n32uBg4Pir6ujsa7Ca6AoaDbo1pzyTXYc7'
+                ]
+            },
+            // Extended public key range, do not ignore non-existent derivation key path
+            {
+                script: 'pkh(tpubDBHn4aVWbRA6SbSVoUZsyTowBtecUUWShQzoP7jibnjkSTa4VC2K2VZUz2CeJx4yhSMKy8ScBMe1LRSU6FsnP49ojGyHewYAD1Vf3iXm4Tm/1/*)',
+                keyParamText: 'tpubDBHn4aVWbRA6SbSVoUZsyTowBtecUUWShQzoP7jibnjkSTa4VC2K2VZUz2CeJx4yhSMKy8ScBMe1LRSU6FsnP49ojGyHewYAD1Vf3iXm4Tm/1/*',
+                keyRange: {
+                    startIdx: 0,
+                    count: 4
+                },
+                globalOptions: {
+                    ignoreNonexistentPathIndex: false
+                },
+                outputScripts: [
+                    Buffer.from('76a9145dc930210dd88ac6372f0e71318d565eefe72bf288ac', 'hex'),
+                    Buffer.from('76a914a42a092852883618fe975c0ea2cb1f83ea16ec1c88ac', 'hex'),
+                    Buffer.from('76a914ec048633355f373856392aa94ed08f3ac07c00de88ac', 'hex')
+                ],
+                addresses: [
+                    'mp4r9gW2LDGdh3xa3gYjJY9MG7ZDo4eKv8',
+                    'mvUyUDBSrW5ioaoBbTRKUL7UuD9h1MMUxb',
+                    'n32uBg4Pir6ujsa7Ca6AoaDbo1pzyTXYc7'
+                ]
+            }
+        ];
+
+        testData.forEach(data => {
+            const expression = ScriptExpression.parse(
+                bitcoinLib.networks.testnet,
+                data.script
+            );
+
+            if (data.keyRange) {
+                expression.keyRange = data.keyRange;
+            }
+
+            if (data.globalOptions) {
+                Options.setOptions(data.globalOptions);
+            }
+
+            expect(expression).to.be.an.instanceOf(PkhScript);
+            expect(expression).to.have.property('keyParam')
+            .that.is.an.instanceOf(KeyExpression)
+            .and.have.property('text', data.keyParamText);
+            expect(expression).to.have.deep.property('outputScripts', data.outputScripts);
+            expect(expression).to.have.deep.property('addresses', data.addresses);
+        });
+
+        // Reset global options
+        Options.reset();
+
+        // Reset BIP32 functionality
+        if (prototype) {
+            prototype.derive = origMethod;
+        }
+
+        bitcoinLib.bip32.fromBase58 = origFunc;
+    });
+
+    it('should fail when getting output scripts (error deriving payment from public key)', function () {
+        // Simulate error instantiating P2PKH payment
+        const origFunc = bitcoinLib.payments.p2pkh;
+
+        bitcoinLib.payments.p2pkh = function () {
+            throw Error('Simulated error instantiating bitcoinJS payment object');
+        }
+
+        const expression = ScriptExpression.parse(
+            bitcoinLib.networks.testnet,
+            'pkh(02eb23fcd29fbc0ef1badafc973f9011d4c8f447fd9a5997a965cc01ffca267fb6)'
+        );
+
+        expect(() => {
+            expression.outputScripts;
+        }).to.throw(Error, /^Bitcoin output descriptor \[PkhScript#_payments]: error deriving P2PKH payment from public key/);
+
+        // Reset bitcoinJS functionality
+        bitcoinLib.payments.p2pkh = origFunc;
+    });
+});
