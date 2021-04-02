@@ -154,7 +154,7 @@ class KeyExpression extends Expression {
         }
     }
 
-    static realPathIndex(idx, isHardened = false) {
+    static realPathIndex(idx, isHardened) {
         return isHardened ? idx + 0x80000000 : idx;
     }
 }
@@ -169,7 +169,7 @@ function isValidOrigin(obj) {
         && (!obj.hasOwnProperty('path') || typeof obj.path === 'string');
 }
 
-function pathIndexToString(idx, isHardened = false) {
+function pathIndexToString(idx, isHardened) {
     return isHardened ? `${idx}\'` : `${idx}`;
 }
 
