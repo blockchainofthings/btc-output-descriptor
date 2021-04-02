@@ -41,15 +41,15 @@ class ComboScript extends ScriptExpression {
         }
 
         this.derivedScripts = [
-            new PkScript(network, text, null, children),
-            new PkhScript(network, text, null, children)
+            new PkScript(network, `pk(${this.keyParam.text})`, null, children),
+            new PkhScript(network, `pkh(${this.keyParam.text})`, null, children)
         ];
 
         if (this.keyParam.isCompressedPubKey) {
-            const wpkhScript = new WpkhScript(network, text, null, children);
+            const wpkhScript = new WpkhScript(network, `wpkh(${this.keyParam.text})`, null, children);
 
             this.derivedScripts.push(wpkhScript);
-            this.derivedScripts.push(new ShScript(network, text, null, [wpkhScript]));
+            this.derivedScripts.push(new ShScript(network, `sh(wpkh(${this.keyParam.text}))`, null, [wpkhScript]));
         }
     }
 }
