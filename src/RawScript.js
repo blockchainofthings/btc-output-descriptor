@@ -19,9 +19,9 @@ class RawScript extends ScriptExpression {
     get addresses() {
         try {
             return this._payments
-                // Filter out outputs with no defined address (i.e. P2PK, P2MS and null data)
-                .filter(payment => !!payment.address)
-                .map(payment => payment.address);
+            // Filter out outputs with no defined address (i.e. P2PK, P2MS and null data)
+            .filter(payment => !!payment.address)
+            .map(payment => payment.address);
         }
         catch (err) {
             // Non-standard output script. Return an empty list
