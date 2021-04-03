@@ -29,5 +29,8 @@
     "mocha": "^8.3.2",
     "nyc": "^15.1.0"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": "git@github.com:blockchainofthings/btc-output-descriptor.git"
 }
