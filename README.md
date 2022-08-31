@@ -100,4 +100,4 @@ Sample output:
 
 This Node.js module is released under the [MIT License](LICENSE). Feel free to fork, and modify!
 
-Copyright © 2021, Blockchain of Things Inc.
+Copyright © 2021-2022, Blockchain of Things Inc.
