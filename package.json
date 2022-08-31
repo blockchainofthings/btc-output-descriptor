@@ -1,6 +1,6 @@
 {
   "name": "@blockchainofthings/btc-output-descriptor",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Node.js library to handle Bitcoin output descriptors",
   "author": "Cláudio Sá de Castro",
   "keywords": [
